@@ -1,0 +1,40 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: wf-market-gsheet
+spec:
+  schedule: "0 7 * * 6"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: wf-market-gsheet
+              image: gcr.io/medrover/wf-market-gsheet:0.01
+              env:
+                - name: GCS_SERVICE_ACCOUNT
+                  value: "/mnt/gcs_key/gcs_service_account.json"
+                - name: BENCHLING_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: benchling-rw-key
+                      key: key
+                - name: LIMS_HOST
+                  value: "http://lims-hasura.default.svc.cluster.local:8080"
+              resources:
+                requests:
+                  cpu: 0.5
+                  memory: 512Mi
+                limits:
+                  cpu: 1.0
+                  memory: 3Gi
+              volumeMounts:
+                - name: wf-market-gsheet-service-account-volume
+                  mountPath: "/mnt/gcs_key/"
+                  readOnly: true
+          volumes:
+            - name: wf-market-gsheet-service-account-volume
+              secret:
+                secretName: wf-market-gsheet-service-account
+          restartPolicy: Never
+      backoffLimit: 0
