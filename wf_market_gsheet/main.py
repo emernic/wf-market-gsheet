@@ -12,7 +12,7 @@ def dump_wf_market_data_to_gsheet():
     items = requests.get(f"{WF_MARKET_URL_BASE}/items").json()["payload"]["items"]
 
     rows = []
-    for item in items[:5]:
+    for item in items:
         stats = requests.get(f"{WF_MARKET_URL_BASE}/items/{item['url_name']}/statistics").json()["payload"]["statistics_closed"]["90days"]
         total_volume = 0
         volumes = []

@@ -3,34 +3,27 @@ kind: CronJob
 metadata:
   name: wf-market-gsheet
 spec:
-  schedule: "0 7 * * 6"
+  schedule: "0 0 * * *"
   jobTemplate:
     spec:
       template:
         spec:
           containers:
             - name: wf-market-gsheet
-              image: gcr.io/medrover/wf-market-gsheet:0.01
+              image: gcr.io/medrover/wf-market-gsheet:0.50
               env:
-                - name: GCS_SERVICE_ACCOUNT
-                  value: "/mnt/gcs_key/gcs_service_account.json"
-                - name: BENCHLING_API_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      name: benchling-rw-key
-                      key: key
-                - name: LIMS_HOST
-                  value: "http://lims-hasura.default.svc.cluster.local:8080"
+                - name: GOOGLE_SHEETS_SERVICE_ACCOUNT
+                  value: "/mnt/gs_key/service_account.json"
               resources:
                 requests:
-                  cpu: 0.5
-                  memory: 512Mi
+                  cpu: 0.25
+                  memory: 206Mi
                 limits:
-                  cpu: 1.0
-                  memory: 3Gi
+                  cpu: 0.5
+                  memory: 1.5Gi
               volumeMounts:
                 - name: wf-market-gsheet-service-account-volume
-                  mountPath: "/mnt/gcs_key/"
+                  mountPath: "/mnt/gs_key/"
                   readOnly: true
           volumes:
             - name: wf-market-gsheet-service-account-volume
