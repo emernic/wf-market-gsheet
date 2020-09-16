@@ -1,5 +1,6 @@
 import os
 import statistics
+import time
 
 import requests
 import gspread
@@ -8,12 +9,27 @@ import gspread
 WF_MARKET_URL_BASE = "https://api.warframe.market/v1"
 
 
+def _wfm_request_with_retry(method, endpoint, retries=5, *args, **kwargs):
+    def call_endpoint():
+        res = method(f"{WF_MARKET_URL_BASE}{endpoint}", *args, **kwargs)
+        res.raise_for_status()
+        return res.json()["payload"]
+
+    for i in range(retries):
+        try:
+            return call_endpoint()
+        except requests.exceptions.HTTPError:
+            time.sleep(1)
+
+    return call_endpoint()
+
+
 def dump_wf_market_data_to_gsheet():
-    items = requests.get(f"{WF_MARKET_URL_BASE}/items").json()["payload"]["items"]
+    items = _wfm_request_with_retry(requests.get, "/items")["items"]
 
     rows = []
     for item in items:
-        stats = requests.get(f"{WF_MARKET_URL_BASE}/items/{item['url_name']}/statistics").json()["payload"]["statistics_closed"]["90days"]
+        stats = _wfm_request_with_retry(requests.get, f"/items/{item['url_name']}/statistics")["statistics_closed"]["90days"]
         total_volume = 0
         volumes = []
         num_days = 0

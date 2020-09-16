@@ -10,7 +10,7 @@ spec:
         spec:
           containers:
             - name: wf-market-gsheet
-              image: gcr.io/medrover/wf-market-gsheet:0.50
+              image: gcr.io/medrover/wf-market-gsheet:0.52
               env:
                 - name: GOOGLE_SHEETS_SERVICE_ACCOUNT
                   value: "/mnt/gs_key/service_account.json"
